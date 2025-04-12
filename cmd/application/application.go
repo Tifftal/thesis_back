@@ -11,6 +11,9 @@ import (
 	"log"
 	_ "thesis_back/docs"
 	"thesis_back/internal/config"
+	"thesis_back/internal/service"
+	"thesis_back/internal/transport/http/middleware"
+	project_handler "thesis_back/internal/transport/http/project"
 	user_handler "thesis_back/internal/transport/http/user"
 )
 
@@ -39,7 +42,7 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 // @securityDefinitions.apiKey BearerAuth
 // @in header
 // @name Authorization
-func (a *Application) Start(user_handler *user_handler.UserHandler) {
+func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, auth_service *service.AuthService) {
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1")
@@ -52,33 +55,41 @@ func (a *Application) Start(user_handler *user_handler.UserHandler) {
 		auth.POST("/register", user_handler.Register)
 		auth.POST("/login", user_handler.Login)
 		auth.POST("/refresh", user_handler.Refresh)
-		auth.GET("/me", user_handler.Me)
 	}
 
-	projects := v1.Group("/projects")
+	protected := v1.Group("")
+	protected.Use(middleware.IsAuthenticated(auth_service, a.logger.Named("Auth Middleware")))
 	{
-		projects.POST("")
-		projects.GET("")
-		projects.GET("/:id")
-		projects.DELETE("/:id")
-		projects.PUT("/:id")
-	}
+		user := protected.Group("/user")
+		{
+			user.GET("/me", user_handler.Me)
+		}
 
-	layers := v1.Group("/layers")
-	{
-		layers.POST("")
-		layers.GET("")
-		layers.GET("/:id")
-		layers.DELETE("/:id")
-		layers.PUT("/:id")
-	}
+		projects := protected.Group("/projects")
+		{
+			projects.POST("", project_handler.Create)
+			projects.GET("", project_handler.Get)
+			projects.GET("/:id", project_handler.GetByID)
+			projects.DELETE("/:id", project_handler.Delete)
+			projects.PUT("/:id", project_handler.Update)
+		}
 
-	images := v1.Group("/images")
-	{
-		images.GET("")
-		images.POST("")
-		images.PUT("")
-		images.DELETE("")
+		layers := protected.Group("/layers")
+		{
+			layers.POST("")
+			layers.GET("")
+			layers.GET("/:id")
+			layers.DELETE("/:id")
+			layers.PUT("/:id")
+		}
+
+		images := protected.Group("/images")
+		{
+			images.GET("")
+			images.POST("")
+			images.PUT("")
+			images.DELETE("")
+		}
 	}
 
 	if err := router.Run(fmt.Sprintf("%s:%d", a.config.Server.Host, a.config.Server.Port)); err != nil {

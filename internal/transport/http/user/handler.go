@@ -10,11 +10,11 @@ import (
 )
 
 type UserHandler struct {
-	uc     *user.UserUseCase
+	uc     user.IUserUseCase
 	logger *zap.Logger
 }
 
-func NewUserHandler(uc *user.UserUseCase, logger *zap.Logger) *UserHandler {
+func NewUserHandler(uc user.IUserUseCase, logger *zap.Logger) *UserHandler {
 
 	return &UserHandler{
 		uc:     uc,

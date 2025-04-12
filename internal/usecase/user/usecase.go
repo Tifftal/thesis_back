@@ -10,8 +10,8 @@ import (
 	"thesis_back/internal/service"
 )
 
-type UserUseCase struct {
-	repo   *user.UserRepository
+type userUseCase struct {
+	repo   user.IUserRepository
 	auth   *service.AuthService
 	logger *zap.Logger
 }
@@ -19,18 +19,18 @@ type UserUseCase struct {
 type IUserUseCase interface {
 	Register(ctx context.Context, user *domain.User) (*domain.User, error)
 	Authenticate(ctx context.Context, username, password string) (*domain.User, error)
-	GenerateTokens(user *domain.User) (string, error)
+	GenerateTokens(user *domain.User) (*domain.TokenPair, error)
 }
 
-func NewUserUseCase(repo *user.UserRepository, auth *service.AuthService, logger *zap.Logger) *UserUseCase {
-	return &UserUseCase{
+func NewUserUseCase(repo user.IUserRepository, auth *service.AuthService, logger *zap.Logger) IUserUseCase {
+	return &userUseCase{
 		repo:   repo,
 		auth:   auth,
 		logger: logger.Named("UserUseCase"),
 	}
 }
 
-func (uc *UserUseCase) Register(ctx context.Context, user *domain.User) (*domain.User, error) {
+func (uc *userUseCase) Register(ctx context.Context, user *domain.User) (*domain.User, error) {
 	existing, err := uc.repo.GetByUsername(ctx, user.Username)
 	if existing != nil {
 		uc.logger.Error("user with username "+user.Username+" already exists", zap.Any("user", user))
@@ -54,7 +54,7 @@ func (uc *UserUseCase) Register(ctx context.Context, user *domain.User) (*domain
 	return user, nil
 }
 
-func (uc *UserUseCase) Authenticate(ctx context.Context, username, password string) (*domain.User, error) {
+func (uc *userUseCase) Authenticate(ctx context.Context, username, password string) (*domain.User, error) {
 	user, err := uc.repo.GetByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -72,6 +72,6 @@ func (uc *UserUseCase) Authenticate(ctx context.Context, username, password stri
 	return user, nil
 }
 
-func (uc *UserUseCase) GenerateTokens(user *domain.User) (*domain.TokenPair, error) {
+func (uc *userUseCase) GenerateTokens(user *domain.User) (*domain.TokenPair, error) {
 	return uc.auth.GenerateTokens(user)
 }

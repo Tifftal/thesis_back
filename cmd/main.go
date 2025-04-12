@@ -8,10 +8,15 @@ import (
 	"thesis_back/internal/infrastructure/db/postgres"
 	"thesis_back/internal/infrastructure/s3/minio"
 	"thesis_back/internal/pkg/logger"
-	user_repo "thesis_back/internal/repository/user"
 	"thesis_back/internal/service"
+
+	user_repo "thesis_back/internal/repository/user"
 	user_handler "thesis_back/internal/transport/http/user"
 	user_usecase "thesis_back/internal/usecase/user"
+
+	project_repo "thesis_back/internal/repository/project"
+	project_handler "thesis_back/internal/transport/http/project"
+	project_usecase "thesis_back/internal/usecase/project"
 )
 
 func main() {
@@ -62,7 +67,11 @@ func main() {
 	uc := user_usecase.NewUserUseCase(ur, auth_service, custom_logger)
 	uh := user_handler.NewUserHandler(uc, custom_logger)
 
+	pr := project_repo.NewProjectRepository(db)
+	pc := project_usecase.NewProjectUseCase(&pr, custom_logger)
+	ph := project_handler.NewProjectHandler(&pc, custom_logger)
+
 	app := application.NewApplication(cfg, custom_logger, db, minioClient)
 
-	app.Start(uh)
+	app.Start(uh, ph, auth_service)
 }

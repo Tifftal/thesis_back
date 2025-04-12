@@ -8,4 +8,6 @@ var (
 	ErrUserExists         = errors.New("Пользователь с таким именем уже существует")
 	ErrUnauthorized       = errors.New("Неавторизован")
 	ErrInvalidRequestBody = errors.New("Данные неверны")
+
+	ErrProjectNotFound = errors.New("Проект не найден")
 )

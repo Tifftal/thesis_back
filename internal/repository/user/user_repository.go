@@ -6,7 +6,7 @@ import (
 	"thesis_back/internal/domain"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
@@ -18,11 +18,11 @@ type IUserRepository interface {
 	Delete(ctx context.Context, id string) error
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *gorm.DB) IUserRepository {
+	return &userRepository{db: db}
 }
 
-func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	err := r.db.Create(user).Error
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
+func (r *userRepository) GetByID(ctx context.Context, id string) (*domain.User, error) {
 	var user domain.User
 
 	err := r.db.First(&user, "id = ?", id).Error
@@ -42,7 +42,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id string) (*domain.User, 
 	return &user, nil
 }
 
-func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+func (r *userRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	var user domain.User
 
 	err := r.db.First(&user, "username = ?", username).Error
@@ -53,7 +53,7 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*d
 	return &user, nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	err := r.db.Save(user).Error
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *UserRepository) Delete(ctx context.Context, id string) error {
+func (r *userRepository) Delete(ctx context.Context, id string) error {
 	err := r.db.Delete(&domain.User{}, "id = ?", id).Error
 	if err != nil {
 		return err
