@@ -1,0 +1,3 @@
+config/config.yaml
+docker-compose.yml
+.env
