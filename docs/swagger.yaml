@@ -1,6 +1,40 @@
 basePath: /api/v1
 definitions:
-  user.AuthResponse:
+  internal_transport_http_project.CreateProjectDTO:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_transport_http_project.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_transport_http_project.ProjectResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      images:
+        items:
+          $ref: '#/definitions/thesis_back_internal_transport_http_image.ImageResponse'
+        type: array
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  internal_transport_http_project.UpdateProjectDTO:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_transport_http_user.AuthResponse:
     properties:
       accessToken:
         type: string
@@ -9,9 +43,9 @@ definitions:
       refreshToken:
         type: string
       user:
-        $ref: '#/definitions/user.UserResponse'
+        $ref: '#/definitions/internal_transport_http_user.UserResponse'
     type: object
-  user.CreateUserDTO:
+  internal_transport_http_user.CreateUserDTO:
     properties:
       firstName:
         type: string
@@ -30,12 +64,12 @@ definitions:
     - password
     - username
     type: object
-  user.ErrorResponse:
+  internal_transport_http_user.ErrorResponse:
     properties:
       message:
         type: string
     type: object
-  user.LoginUserDTO:
+  internal_transport_http_user.LoginUserDTO:
     properties:
       password:
         minLength: 8
@@ -46,7 +80,7 @@ definitions:
     - password
     - username
     type: object
-  user.UserResponse:
+  internal_transport_http_user.UserResponse:
     properties:
       createdAt:
         type: string
@@ -62,6 +96,29 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  thesis_back_internal_transport_http_image.ImageResponse:
+    properties:
+      id:
+        type: integer
+      layers:
+        items:
+          $ref: '#/definitions/thesis_back_internal_transport_http_layer.LayerResponse'
+        type: array
+      name:
+        type: string
+      projectID:
+        type: integer
+    type: object
+  thesis_back_internal_transport_http_layer.LayerResponse:
+    properties:
+      id:
+        type: integer
+      image_id:
+        type: integer
+      measurements:
+        additionalProperties: true
+        type: object
     type: object
 host: localhost:8080
 info:
@@ -80,22 +137,22 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/user.LoginUserDTO'
+          $ref: '#/definitions/internal_transport_http_user.LoginUserDTO'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.AuthResponse'
+            $ref: '#/definitions/internal_transport_http_user.AuthResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/user.ErrorResponse'
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/user.ErrorResponse'
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       summary: Аутентификация пользователя
       tags:
       - auth
@@ -109,21 +166,141 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/user.CreateUserDTO'
+          $ref: '#/definitions/internal_transport_http_user.CreateUserDTO'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/user.AuthResponse'
+            $ref: '#/definitions/internal_transport_http_user.AuthResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/user.ErrorResponse'
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       summary: Зарегистрировать новго пользователя
       tags:
       - auth
+  /project:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить все проекты
+      tags:
+      - project
+    post:
+      parameters:
+      - description: Название проекта
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_project.CreateProjectDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать новый проект
+      tags:
+      - project
+  /project/{id}:
+    delete:
+      parameters:
+      - description: ID проекта
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить проект
+      tags:
+      - project
+    get:
+      parameters:
+      - description: ID проекта
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить проект по ID
+      tags:
+      - project
+    put:
+      parameters:
+      - description: ID проекта
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Название проекта
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_project.UpdateProjectDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ProjectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_project.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить проект
+      tags:
+      - project
   /user/me:
     get:
       produces:
@@ -132,13 +309,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.UserResponse'
+            $ref: '#/definitions/internal_transport_http_user.UserResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/user.ErrorResponse'
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Получение информации о текущем пользователе
       tags:
       - user

@@ -41,7 +41,7 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 // @termsOfService http://swagger.io/terms/
 // @host localhost:8080
 // @BasePath /api/v1
-// @securityDefinitions.apiKey BearerAuth
+// @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, layer_handler *layer_handler.LayerHandler, image_handler *image_handler.ImageHandler, auth_service *service.AuthService) {
@@ -67,13 +67,13 @@ func (a *Application) Start(user_handler *user_handler.UserHandler, project_hand
 			user.GET("/me", user_handler.Me)
 		}
 
-		projects := protected.Group("/projects")
+		project := protected.Group("/project")
 		{
-			projects.POST("", project_handler.Create)
-			projects.GET("", project_handler.Get)
-			projects.GET("/:id", project_handler.GetByID)
-			projects.DELETE("/:id", project_handler.Delete)
-			projects.PUT("/:id", project_handler.Update)
+			project.POST("", project_handler.Create)
+			project.GET("", project_handler.Get)
+			project.GET("/:id", project_handler.GetByID)
+			project.DELETE("/:id", project_handler.Delete)
+			project.PUT("/:id", project_handler.Update)
 		}
 
 		image := protected.Group("/image")

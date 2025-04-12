@@ -19,7 +19,11 @@ func NewLayerHandler(lu *layer.ILayerUseCase, logger *zap.Logger) *LayerHandler 
 }
 
 func (h *LayerHandler) Create(c *gin.Context) {
+	userID := c.GetInt("userID")
 
+	if userID == 0 {
+
+	}
 }
 
 func (h *LayerHandler) Delete(c *gin.Context) {
@@ -35,5 +39,5 @@ func (h *LayerHandler) GetByID(c *gin.Context) {
 }
 
 func (h *LayerHandler) Update(c *gin.Context) {
-	
+
 }

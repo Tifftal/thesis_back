@@ -97,7 +97,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {}
 // Me godoc
 // @Summary Получение информации о текущем пользователе
 // @Tags user
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} UserResponse
 // @Failure 401 {object} ErrorResponse

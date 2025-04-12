@@ -76,8 +76,8 @@ func main() {
 	uh := user_handler.NewUserHandler(uc, custom_logger)
 
 	pr := project_repo.NewProjectRepository(db)
-	pc := project_usecase.NewProjectUseCase(&pr, custom_logger)
-	ph := project_handler.NewProjectHandler(&pc, custom_logger)
+	pc := project_usecase.NewProjectUseCase(pr, custom_logger)
+	ph := project_handler.NewProjectHandler(pc, custom_logger)
 
 	ir := image_repo.NewImageRepository(db, s3)
 	ic := image_usecase.NewImageUseCase(&ir, custom_logger)

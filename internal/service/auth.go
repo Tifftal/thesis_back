@@ -24,8 +24,8 @@ func NewAuthService(cfg *JWTConfig) *AuthService {
 func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, error) {
 	// Access token
 	accessClaims := jwt.MapClaims{
-		"user_id": user.ID,
-		"exp":     time.Now().Add(a.config.AccessExpiry).Unix(),
+		"userID": user.ID,
+		"exp":    time.Now().Add(a.config.AccessExpiry).Unix(),
 	}
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -36,8 +36,8 @@ func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, erro
 
 	// Refresh token
 	refreshClaims := jwt.MapClaims{
-		"user_id": user.ID,
-		"exp":     time.Now().Add(a.config.RefreshExpiry).Unix(),
+		"userID": user.ID,
+		"exp":    time.Now().Add(a.config.RefreshExpiry).Unix(),
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
@@ -53,19 +53,24 @@ func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, erro
 	}, nil
 }
 
-func (a *AuthService) ValidateToken(tokenString string) (string, error) {
+func (a *AuthService) ValidateToken(tokenString string) (uint, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.config.SecretKey), nil
 	})
 
 	if err != nil || !token.Valid {
-		return "", domain.ErrUnauthorized
+		return 0, domain.ErrUnauthorized
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", domain.ErrUnauthorized
+		return 0, domain.ErrUnauthorized
 	}
 
-	return claims["user_id"].(string), nil
+	userIDFloat, ok := claims["userID"].(float64)
+	if !ok {
+		return 0, domain.ErrUnauthorized
+	}
+
+	return uint(userIDFloat), nil
 }
