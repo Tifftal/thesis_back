@@ -7,5 +7,5 @@ type Project struct {
 	ID     uint    `gorm:"primaryKey;autoIncrement"`
 	Name   string  `json:"name"`
 	UserID uint    `json:"userID"`
-	Images []Image `json:"images"`
+	Images []Image `gorm:"foreignKey:ProjectID" json:"images"`
 }

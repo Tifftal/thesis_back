@@ -37,7 +37,7 @@ func IsAuthenticated(authService *service.AuthService, logger *zap.Logger) gin.H
 			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrUnauthorized.Error())
 			return
 		}
-		fmt.Println(userID)
+
 		c.Set("userID", userID)
 		c.Next()
 	}

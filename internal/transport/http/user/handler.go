@@ -102,7 +102,20 @@ func (h *UserHandler) Refresh(c *gin.Context) {}
 // @Success 200 {object} UserResponse
 // @Failure 401 {object} ErrorResponse
 // @Router /user/me [get]
-func (h *UserHandler) Me(c *gin.Context) {}
+func (h *UserHandler) Me(c *gin.Context) {
+	userID := c.GetUint("userID")
+
+	user, err := h.uc.GetMe(c.Request.Context(), userID)
+	if err != nil {
+		h.logger.Warn("GetMe", zap.Error(err))
+		c.JSON(errorStatusCode(err), ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	response := ToUserResponse(user.ID, user.Username, user.FirstName, user.LastName, user.Patronymic, user.CreatedAt, user.UpdatedAt)
+
+	c.JSON(http.StatusOK, response)
+}
 
 func errorStatusCode(err error) int {
 	switch {

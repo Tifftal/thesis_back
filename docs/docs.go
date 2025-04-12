@@ -100,6 +100,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/image": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Загрузка изображения в MinIO",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Загрузка изображения",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID проекта",
+                        "name": "projectID",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Название изображения",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Файл изображения",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ImageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project": {
             "get": {
                 "security": [
@@ -326,6 +383,37 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "internal_transport_http_image.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_image.ImageResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "layers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/thesis_back_internal_transport_http_layer.LayerResponse"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projectID": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_transport_http_project.CreateProjectDTO": {
             "type": "object",
             "required": [
@@ -490,6 +578,9 @@ const docTemplate = `{
                 },
                 "projectID": {
                     "type": "integer"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },

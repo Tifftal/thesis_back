@@ -9,4 +9,7 @@ var (
 	ErrUnauthorized       = errors.New("Неавторизован")
 	ErrInvalidRequestBody = errors.New("Данные неверны")
 	ErrProjectNotFound    = errors.New("Проект не найден")
+	ErrImageNotUploaded   = errors.New("Не удалось загрузить изображение в S3")
+	ErrImageNotFound      = errors.New("Изображение не найдено")
+	ErrImageNotOpens      = errors.New("Ошибка при открытии изображения")
 )

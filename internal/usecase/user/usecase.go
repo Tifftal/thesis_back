@@ -19,6 +19,7 @@ type userUseCase struct {
 type IUserUseCase interface {
 	Register(ctx context.Context, user *domain.User) (*domain.User, error)
 	Authenticate(ctx context.Context, username, password string) (*domain.User, error)
+	GetMe(ctx context.Context, userID uint) (*domain.User, error)
 	GenerateTokens(user *domain.User) (*domain.TokenPair, error)
 }
 
@@ -74,4 +75,13 @@ func (uc *userUseCase) Authenticate(ctx context.Context, username, password stri
 
 func (uc *userUseCase) GenerateTokens(user *domain.User) (*domain.TokenPair, error) {
 	return uc.auth.GenerateTokens(user)
+}
+
+func (uc *userUseCase) GetMe(ctx context.Context, userID uint) (*domain.User, error) {
+	user, err := uc.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, domain.ErrUserNotFound
+	}
+
+	return user, nil
 }

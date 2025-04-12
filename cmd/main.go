@@ -79,9 +79,9 @@ func main() {
 	pc := project_usecase.NewProjectUseCase(pr, custom_logger)
 	ph := project_handler.NewProjectHandler(pc, custom_logger)
 
-	ir := image_repo.NewImageRepository(db, s3)
-	ic := image_usecase.NewImageUseCase(&ir, custom_logger)
-	ih := image_handler.NewImageHandler(&ic, custom_logger)
+	ir := image_repo.NewImageRepository(db, s3, fmt.Sprintf("%s/%s", cfg.S3.Endpoint, cfg.S3.BucketName))
+	ic := image_usecase.NewImageUseCase(ir, custom_logger)
+	ih := image_handler.NewImageHandler(ic, custom_logger)
 
 	lr := layer_repo.NewLayerRepository(db)
 	lu := layer_usecase.NewLayerUseCase(&lr, custom_logger)

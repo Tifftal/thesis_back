@@ -33,10 +33,15 @@ func (p *projectRepository) Create(ctx context.Context, project *domain.Project)
 	return nil
 }
 
-func (p projectRepository) GetByID(ctx context.Context, id uint) (*domain.Project, error) {
+func (p *projectRepository) GetByID(ctx context.Context, id uint) (*domain.Project, error) {
 	var project domain.Project
 
-	err := p.db.Where("id = ?", id).First(&project).Error
+	err := p.db.
+		Preload("Images"). // Предзагрузка изображений
+		Where("id = ?", id).
+		First(&project).
+		Error
+
 	if err != nil {
 		return nil, err
 	}
