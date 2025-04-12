@@ -8,6 +8,10 @@ import (
 	"thesis_back/internal/infrastructure/db/postgres"
 	"thesis_back/internal/infrastructure/s3/minio"
 	"thesis_back/internal/pkg/logger"
+	user_repo "thesis_back/internal/repository/user"
+	"thesis_back/internal/service"
+	user_handler "thesis_back/internal/transport/http/user"
+	user_usecase "thesis_back/internal/usecase/user"
 )
 
 func main() {
@@ -46,9 +50,19 @@ func main() {
 		log.Fatalf("Failed to create minio client: %v", err)
 	}
 
-	log, err := logger.New(cfg.Logging)
+	custom_logger, err := logger.New(cfg.Logging)
 
-	app := application.NewApplication(cfg, log, db, minioClient)
+	auth_service := service.NewAuthService(&service.JWTConfig{
+		SecretKey:     cfg.Auth.JWTSecret,
+		AccessExpiry:  cfg.Auth.AccessTokenExpire,
+		RefreshExpiry: cfg.Auth.RefreshTokenExpire,
+	})
 
-	app.Start()
+	ur := user_repo.NewUserRepository(db)
+	uc := user_usecase.NewUserUseCase(ur, auth_service, custom_logger)
+	uh := user_handler.NewUserHandler(uc, custom_logger)
+
+	app := application.NewApplication(cfg, custom_logger, db, minioClient)
+
+	app.Start(uh)
 }

@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
+	_ "thesis_back/docs"
 	"thesis_back/internal/config"
+	user_handler "thesis_back/internal/transport/http/user"
 )
 
 type Application struct {
@@ -26,18 +30,29 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 	}
 }
 
-func (a *Application) Start() {
+// Start @title Thesis Backend API
+// @version 1.0
+// @description API для дипломного проекта
+// @termsOfService http://swagger.io/terms/
+// @host localhost:8080
+// @BasePath /api/v1
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+func (a *Application) Start(user_handler *user_handler.UserHandler) {
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1")
 	v1.Use(gin.Recovery())
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	auth := v1.Group("/auth")
 	{
-		auth.POST("/register")
-		auth.POST("/login")
-		auth.POST("/refresh")
-		auth.GET("/me")
+		auth.POST("/register", user_handler.Register)
+		auth.POST("/login", user_handler.Login)
+		auth.POST("/refresh", user_handler.Refresh)
+		auth.GET("/me", user_handler.Me)
 	}
 
 	projects := v1.Group("/projects")
