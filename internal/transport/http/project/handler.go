@@ -25,7 +25,7 @@ func NewProjectHandler(pu project.IProjectUseCase, logger *zap.Logger) *ProjectH
 
 // Create godoc
 // @Summary Создать новый проект
-// @Tags project
+// @Tags Project
 // @Security BearerAuth
 // @Produce json
 // @Param input body CreateProjectDTO true "Название проекта"
@@ -59,12 +59,12 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 
 // Update godoc
 // @Summary Обновить проект
-// @Tags project
+// @Tags Project
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "ID проекта"
 // @Param input body UpdateProjectDTO true "Название проекта"
-// @Success 201 {object} ProjectResponse
+// @Success 200 {object} ProjectResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /project/{id} [put]
 func (h *ProjectHandler) Update(c *gin.Context) {
@@ -99,7 +99,7 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 
 // Delete godoc
 // @Summary Удалить проект
-// @Tags project
+// @Tags Project
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "ID проекта"
@@ -148,7 +148,7 @@ func (h *ProjectHandler) Get(c *gin.Context) {
 
 // GetByID Get godoc
 // @Summary Получить проект по ID
-// @Tags project
+// @Tags Project
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "ID проекта"

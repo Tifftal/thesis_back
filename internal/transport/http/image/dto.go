@@ -12,6 +12,10 @@ type AddImageDTO struct {
 	ImageFile *multipart.FileHeader `form:"image" binding:"required"`
 }
 
+type UpdateImageDTO struct {
+	Name string `json:"name" binding:"required"`
+}
+
 type ImageResponse struct {
 	ID        uint                      `json:"id"`
 	Name      string                    `json:"name"`

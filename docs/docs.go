@@ -157,6 +157,94 @@ const docTemplate = `{
                 }
             }
         },
+        "/image/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Обновить название изображения",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID изображения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Название картинки",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.UpdateImageDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ImageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Удалить изображение",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID изображения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project": {
             "get": {
                 "security": [
@@ -196,7 +284,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "project"
+                    "Project"
                 ],
                 "summary": "Создать новый проект",
                 "parameters": [
@@ -237,7 +325,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "project"
+                    "Project"
                 ],
                 "summary": "Получить проект по ID",
                 "parameters": [
@@ -274,7 +362,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "project"
+                    "Project"
                 ],
                 "summary": "Обновить проект",
                 "parameters": [
@@ -296,8 +384,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/internal_transport_http_project.ProjectResponse"
                         }
@@ -320,7 +408,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "project"
+                    "Project"
                 ],
                 "summary": "Удалить проект",
                 "parameters": [
@@ -394,6 +482,9 @@ const docTemplate = `{
         "internal_transport_http_image.ImageResponse": {
             "type": "object",
             "properties": {
+                "fileName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -410,6 +501,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_image.UpdateImageDTO": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -564,6 +666,9 @@ const docTemplate = `{
         "thesis_back_internal_transport_http_image.ImageResponse": {
             "type": "object",
             "properties": {
+                "fileName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

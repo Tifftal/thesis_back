@@ -2,6 +2,7 @@ package image
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
@@ -18,6 +19,8 @@ type imageRepository struct {
 type IImageRepository interface {
 	UploadImage(ctx context.Context, fileName string, file multipart.File, size int64) (string, error)
 	CreateImage(ctx context.Context, image *domain.Image) (*domain.Image, error)
+	Update(ctx context.Context, name string, id uint) (*domain.Image, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 func NewImageRepository(db *gorm.DB, s3 *minio.Client, baseUrl string) IImageRepository {
@@ -50,4 +53,30 @@ func (r *imageRepository) CreateImage(ctx context.Context, image *domain.Image) 
 	}
 
 	return image, nil
+}
+
+func (r *imageRepository) Update(ctx context.Context, name string, id uint) (*domain.Image, error) {
+	var image domain.Image
+	result := r.db.Model(&domain.Image{}).
+		Where("id = ?", id).
+		Update("name", name).
+		First(&image)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrImageNotFound
+		}
+		return nil, result.Error
+	}
+
+	return &image, nil
+}
+
+func (r *imageRepository) Delete(ctx context.Context, id uint) error {
+	err := r.db.Where("id = ?", id).Delete(&domain.Image{}).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

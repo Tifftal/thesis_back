@@ -79,8 +79,6 @@ func (a *Application) Start(user_handler *user_handler.UserHandler, project_hand
 		image := protected.Group("/image")
 		{
 			image.POST("", image_handler.Create)
-			image.GET("", image_handler.Get)
-			image.GET("/:id", image_handler.GetByID)
 			image.DELETE("/:id", image_handler.Delete)
 			image.PUT("/:id", image_handler.Update)
 		}

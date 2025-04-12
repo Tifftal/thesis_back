@@ -17,6 +17,8 @@ type imageUseCase struct {
 
 type IImageUseCase interface {
 	UploadImage(ctx context.Context, name string, imageFile *multipart.FileHeader, projectID uint) (*domain.Image, error)
+	Update(ctx context.Context, name string, id uint) (*domain.Image, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 func NewImageUseCase(repo image.IImageRepository, logger *zap.Logger) IImageUseCase {
@@ -53,4 +55,21 @@ func (u *imageUseCase) UploadImage(ctx context.Context, name string, imageFile *
 	}
 
 	return image, nil
+}
+
+func (u *imageUseCase) Update(ctx context.Context, name string, id uint) (*domain.Image, error) {
+	image, err := u.repo.Update(ctx, name, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return image, nil
+}
+
+func (u *imageUseCase) Delete(ctx context.Context, id uint) error {
+	if err := u.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
 }

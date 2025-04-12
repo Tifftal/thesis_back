@@ -7,6 +7,8 @@ definitions:
     type: object
   internal_transport_http_image.ImageResponse:
     properties:
+      fileName:
+        type: string
       id:
         type: integer
       layers:
@@ -19,6 +21,13 @@ definitions:
         type: integer
       url:
         type: string
+    type: object
+  internal_transport_http_image.UpdateImageDTO:
+    properties:
+      name:
+        type: string
+    required:
+    - name
     type: object
   internal_transport_http_project.CreateProjectDTO:
     properties:
@@ -119,6 +128,8 @@ definitions:
     type: object
   thesis_back_internal_transport_http_image.ImageResponse:
     properties:
+      fileName:
+        type: string
       id:
         type: integer
       layers:
@@ -240,6 +251,61 @@ paths:
       summary: Загрузка изображения
       tags:
       - Images
+  /image/{id}:
+    delete:
+      parameters:
+      - description: ID изображения
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить изображение
+      tags:
+      - Images
+    put:
+      parameters:
+      - description: ID изображения
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Название картинки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_image.UpdateImageDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ImageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить название изображения
+      tags:
+      - Images
   /project:
     get:
       produces:
@@ -281,7 +347,7 @@ paths:
       - BearerAuth: []
       summary: Создать новый проект
       tags:
-      - project
+      - Project
   /project/{id}:
     delete:
       parameters:
@@ -307,7 +373,7 @@ paths:
       - BearerAuth: []
       summary: Удалить проект
       tags:
-      - project
+      - Project
     get:
       parameters:
       - description: ID проекта
@@ -330,7 +396,7 @@ paths:
       - BearerAuth: []
       summary: Получить проект по ID
       tags:
-      - project
+      - Project
     put:
       parameters:
       - description: ID проекта
@@ -347,8 +413,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/internal_transport_http_project.ProjectResponse'
         "400":
@@ -359,7 +425,7 @@ paths:
       - BearerAuth: []
       summary: Обновить проект
       tags:
-      - project
+      - Project
   /user/me:
     get:
       produces:
