@@ -2,20 +2,23 @@ package logger
 
 import (
 	"os"
+	"thesis_back/internal/config"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Config struct {
-	Level       string   `mapstructure:"level"`
-	Encoding    string   `mapstructure:"encoding"`
-	OutputPaths []string `mapstructure:"output_paths"`
-}
+func New(cfg config.LoggingConfig) (*zap.Logger, error) {
+	// Валидация конфигурации
+	validate := validator.New()
+	if err := validate.Struct(cfg); err != nil {
+		return nil, err
+	}
 
-func New(cfg Config) (*zap.Logger, error) {
+	// Настройка энкодера
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "ts",
 		LevelKey:       "level",
@@ -32,45 +35,37 @@ func New(cfg Config) (*zap.Logger, error) {
 	}
 
 	var encoder zapcore.Encoder
-	if cfg.Encoding == "json" {
+	if cfg.JSONFormat {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
+	// Настройка выходов
 	var cores []zapcore.Core
-	for _, path := range cfg.OutputPaths {
-		switch path {
-		case "stdout":
-			cores = append(cores, zapcore.NewCore(
-				encoder,
-				zapcore.Lock(os.Stdout),
-				getLogLevel(cfg.Level),
-			))
-		case "stderr":
-			cores = append(cores, zapcore.NewCore(
-				encoder,
-				zapcore.Lock(os.Stderr),
-				getLogLevel(cfg.Level),
-			))
-		default:
-			cores = append(cores, zapcore.NewCore(
-				encoder,
-				zapcore.AddSync(&lumberjack.Logger{
-					Filename:   path,
-					MaxSize:    100, // MB
-					MaxBackups: 3,
-					MaxAge:     30, // days
-					Compress:   true,
-				}),
-				getLogLevel(cfg.Level),
-			))
-		}
+	level := parseLogLevel(cfg.Level)
+
+	// Добавляем вывод в файл если указан
+	if cfg.LogFilePath != "" {
+		fileWriter := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   cfg.LogFilePath,
+			MaxSize:    cfg.RotationPolicy.MaxSize,
+			MaxBackups: cfg.RotationPolicy.MaxBackups,
+			MaxAge:     cfg.RotationPolicy.MaxAge,
+			Compress:   true,
+		})
+		cores = append(cores, zapcore.NewCore(encoder, fileWriter, level))
 	}
 
-	combinedCore := zapcore.NewTee(cores...)
+	// Всегда добавляем вывод в stdout
+	stdoutWriter := zapcore.Lock(os.Stdout)
+	cores = append(cores, zapcore.NewCore(encoder, stdoutWriter, level))
 
-	logger := zap.New(combinedCore,
+	// Создаем ядро
+	core := zapcore.NewTee(cores...)
+
+	// Настройка дополнительных опций
+	logger := zap.New(core,
 		zap.AddCaller(),
 		zap.AddStacktrace(zapcore.ErrorLevel),
 	)
@@ -78,7 +73,7 @@ func New(cfg Config) (*zap.Logger, error) {
 	return logger, nil
 }
 
-func getLogLevel(level string) zapcore.Level {
+func parseLogLevel(level string) zapcore.Level {
 	switch level {
 	case "debug":
 		return zapcore.DebugLevel

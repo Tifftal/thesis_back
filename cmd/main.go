@@ -7,6 +7,7 @@ import (
 	"thesis_back/internal/config"
 	"thesis_back/internal/infrastructure/db/postgres"
 	"thesis_back/internal/infrastructure/s3/minio"
+	"thesis_back/internal/pkg/logger"
 )
 
 func main() {
@@ -45,7 +46,9 @@ func main() {
 		log.Fatalf("Failed to create minio client: %v", err)
 	}
 
-	app := application.NewApplication(cfg, db, minioClient)
+	log, err := logger.New(cfg.Logging)
+
+	app := application.NewApplication(cfg, log, db, minioClient)
 
 	app.Start()
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
 	"thesis_back/internal/config"
@@ -11,13 +12,15 @@ import (
 
 type Application struct {
 	config *config.Config
+	logger *zap.Logger
 	db     *gorm.DB
 	minio  *minio.Client
 }
 
-func NewApplication(config *config.Config, db *gorm.DB, minioClient *minio.Client) *Application {
+func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, minioClient *minio.Client) *Application {
 	return &Application{
 		config: config,
+		logger: logger,
 		db:     db,
 		minio:  minioClient,
 	}
