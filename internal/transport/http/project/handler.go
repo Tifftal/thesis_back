@@ -127,7 +127,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 
 // Get godoc
 // @Summary Получить все проекты
-// @Tags project
+// @Tags Project
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} ProjectResponse[]

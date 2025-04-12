@@ -84,8 +84,8 @@ func main() {
 	ih := image_handler.NewImageHandler(ic, custom_logger)
 
 	lr := layer_repo.NewLayerRepository(db)
-	lu := layer_usecase.NewLayerUseCase(&lr, custom_logger)
-	lh := layer_handler.NewLayerHandler(&lu, custom_logger)
+	lu := layer_usecase.NewLayerUseCase(lr, custom_logger)
+	lh := layer_handler.NewLayerHandler(lu, custom_logger)
 
 	app := application.NewApplication(cfg, custom_logger, db, s3)
 

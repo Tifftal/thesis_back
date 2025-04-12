@@ -12,4 +12,5 @@ var (
 	ErrImageNotUploaded   = errors.New("Не удалось загрузить изображение в S3")
 	ErrImageNotFound      = errors.New("Изображение не найдено")
 	ErrImageNotOpens      = errors.New("Ошибка при открытии изображения")
+	ErrLayerNotFound      = errors.New("Слоай не найден")
 )

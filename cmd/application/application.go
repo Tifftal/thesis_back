@@ -86,8 +86,6 @@ func (a *Application) Start(user_handler *user_handler.UserHandler, project_hand
 		layer := protected.Group("/layer")
 		{
 			layer.POST("", layer_handler.Create)
-			layer.GET("", layer_handler.Get)
-			layer.GET("/:id", layer_handler.GetByID)
 			layer.DELETE("/:id", layer_handler.Delete)
 			layer.PUT("/:id", layer_handler.Update)
 		}

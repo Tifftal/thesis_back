@@ -24,7 +24,7 @@ func NewUserHandler(uc user.IUserUseCase, logger *zap.Logger) *UserHandler {
 
 // Register godoc
 // @Summary Зарегистрировать новго пользователя
-// @tags auth
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Param input body CreateUserDTO true "Данные пользователя"
@@ -59,7 +59,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 // Login godoc
 // @Summary Аутентификация пользователя
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Param input body LoginUserDTO true "Данные для авторизации"
@@ -96,7 +96,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {}
 
 // Me godoc
 // @Summary Получение информации о текущем пользователе
-// @Tags user
+// @Tags User
 // @Security BearerAuth
 // @Produce json
 // @Success 200 {object} UserResponse

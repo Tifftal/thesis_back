@@ -29,6 +29,38 @@ definitions:
     required:
     - name
     type: object
+  internal_transport_http_layer.CreateLayerDTO:
+    properties:
+      imageID:
+        type: integer
+      name:
+        type: string
+    type: object
+  internal_transport_http_layer.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_transport_http_layer.LayerResponse:
+    properties:
+      id:
+        type: integer
+      imageID:
+        type: integer
+      measurements:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+    type: object
+  internal_transport_http_layer.UpdateLayerDTO:
+    properties:
+      measurements:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+    type: object
   internal_transport_http_project.CreateProjectDTO:
     properties:
       name:
@@ -147,11 +179,13 @@ definitions:
     properties:
       id:
         type: integer
-      image_id:
+      imageID:
         type: integer
       measurements:
         additionalProperties: true
         type: object
+      name:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -188,7 +222,7 @@ paths:
             $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       summary: Аутентификация пользователя
       tags:
-      - auth
+      - Auth
   /auth/register:
     post:
       consumes:
@@ -213,7 +247,7 @@ paths:
             $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       summary: Зарегистрировать новго пользователя
       tags:
-      - auth
+      - Auth
   /image:
     post:
       consumes:
@@ -306,6 +340,86 @@ paths:
       summary: Обновить название изображения
       tags:
       - Images
+  /layer:
+    post:
+      parameters:
+      - description: Название слоя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_layer.CreateLayerDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.LayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать новый слой
+      tags:
+      - Layers
+  /layer/{id}:
+    delete:
+      parameters:
+      - description: ID слоя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить слой
+      tags:
+      - Layers
+    put:
+      parameters:
+      - description: ID слоя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Название слоя
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_layer.UpdateLayerDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.LayerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_layer.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить слой
+      tags:
+      - Layers
   /project:
     get:
       produces:
@@ -323,7 +437,7 @@ paths:
       - BearerAuth: []
       summary: Получить все проекты
       tags:
-      - project
+      - Project
     post:
       parameters:
       - description: Название проекта
@@ -443,7 +557,7 @@ paths:
       - BearerAuth: []
       summary: Получение информации о текущем пользователе
       tags:
-      - user
+      - User
 securityDefinitions:
   BearerAuth:
     in: header

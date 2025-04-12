@@ -7,6 +7,8 @@ import (
 
 type Layer struct {
 	gorm.Model
+	ID           uint           `gorm:"primaryKey;autoIncrement"`
 	ImageID      uint           `json:"imageID" gorm:"not null"`
-	Measurements datatypes.JSON `json:"measurements" gorm:"type:jsonb"` // jsonb для PostgreSQL
+	Name         string         `json:"name" gorm:"not null"`
+	Measurements datatypes.JSON `json:"measurements" gorm:"type:jsonb"`
 }

@@ -37,7 +37,7 @@ func (p *projectRepository) GetByID(ctx context.Context, id uint) (*domain.Proje
 	var project domain.Project
 
 	err := p.db.
-		Preload("Images"). // Предзагрузка изображений
+		Preload("Images.Layers").
 		Where("id = ?", id).
 		First(&project).
 		Error

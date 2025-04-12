@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Аутентификация пользователя",
                 "parameters": [
@@ -70,7 +70,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Зарегистрировать новго пользователя",
                 "parameters": [
@@ -245,6 +245,135 @@ const docTemplate = `{
                 }
             }
         },
+        "/layer": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Layers"
+                ],
+                "summary": "Создать новый слой",
+                "parameters": [
+                    {
+                        "description": "Название слоя",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.CreateLayerDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.LayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/layer/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Layers"
+                ],
+                "summary": "Обновить слой",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID слоя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Название слоя",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.UpdateLayerDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.LayerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Layers"
+                ],
+                "summary": "Удалить слой",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID слоя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_layer.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project": {
             "get": {
                 "security": [
@@ -256,7 +385,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "project"
+                    "Project"
                 ],
                 "summary": "Получить все проекты",
                 "responses": {
@@ -450,7 +579,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Получение информации о текущем пользователе",
                 "responses": {
@@ -511,6 +640,55 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_layer.CreateLayerDTO": {
+            "type": "object",
+            "properties": {
+                "imageID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_layer.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_layer.LayerResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "imageID": {
+                    "type": "integer"
+                },
+                "measurements": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_layer.UpdateLayerDTO": {
+            "type": "object",
+            "properties": {
+                "measurements": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
                 "name": {
                     "type": "string"
                 }
@@ -695,12 +873,15 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image_id": {
+                "imageID": {
                     "type": "integer"
                 },
                 "measurements": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         }
