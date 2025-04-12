@@ -17,6 +17,14 @@ import (
 	project_repo "thesis_back/internal/repository/project"
 	project_handler "thesis_back/internal/transport/http/project"
 	project_usecase "thesis_back/internal/usecase/project"
+
+	image_repo "thesis_back/internal/repository/image"
+	image_handler "thesis_back/internal/transport/http/image"
+	image_usecase "thesis_back/internal/usecase/image"
+
+	layer_repo "thesis_back/internal/repository/layer"
+	layer_handler "thesis_back/internal/transport/http/layer"
+	layer_usecase "thesis_back/internal/usecase/layer"
 )
 
 func main() {
@@ -43,7 +51,7 @@ func main() {
 		log.Fatalf("Failed to auto migrate: %v", err)
 	}
 
-	minioClient, err := minio.NewMinioClient(minio.Config{
+	s3, err := minio.NewMinioClient(minio.Config{
 		Endpoint:   cfg.S3.Endpoint,
 		AccessKey:  cfg.S3.AccessKey,
 		SecretKey:  cfg.S3.SecretKey,
@@ -71,7 +79,15 @@ func main() {
 	pc := project_usecase.NewProjectUseCase(&pr, custom_logger)
 	ph := project_handler.NewProjectHandler(&pc, custom_logger)
 
-	app := application.NewApplication(cfg, custom_logger, db, minioClient)
+	ir := image_repo.NewImageRepository(db, s3)
+	ic := image_usecase.NewImageUseCase(&ir, custom_logger)
+	ih := image_handler.NewImageHandler(&ic, custom_logger)
 
-	app.Start(uh, ph, auth_service)
+	lr := layer_repo.NewLayerRepository(db)
+	lu := layer_usecase.NewLayerUseCase(&lr, custom_logger)
+	lh := layer_handler.NewLayerHandler(&lu, custom_logger)
+
+	app := application.NewApplication(cfg, custom_logger, db, s3)
+
+	app.Start(uh, ph, lh, ih, auth_service)
 }

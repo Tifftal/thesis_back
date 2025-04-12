@@ -12,6 +12,8 @@ import (
 	_ "thesis_back/docs"
 	"thesis_back/internal/config"
 	"thesis_back/internal/service"
+	image_handler "thesis_back/internal/transport/http/image"
+	layer_handler "thesis_back/internal/transport/http/layer"
 	"thesis_back/internal/transport/http/middleware"
 	project_handler "thesis_back/internal/transport/http/project"
 	user_handler "thesis_back/internal/transport/http/user"
@@ -42,7 +44,7 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 // @securityDefinitions.apiKey BearerAuth
 // @in header
 // @name Authorization
-func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, auth_service *service.AuthService) {
+func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, layer_handler *layer_handler.LayerHandler, image_handler *image_handler.ImageHandler, auth_service *service.AuthService) {
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1")
@@ -74,21 +76,22 @@ func (a *Application) Start(user_handler *user_handler.UserHandler, project_hand
 			projects.PUT("/:id", project_handler.Update)
 		}
 
-		layers := protected.Group("/layers")
+		image := protected.Group("/image")
 		{
-			layers.POST("")
-			layers.GET("")
-			layers.GET("/:id")
-			layers.DELETE("/:id")
-			layers.PUT("/:id")
+			image.POST("", image_handler.Create)
+			image.GET("", image_handler.Get)
+			image.GET("/:id", image_handler.GetByID)
+			image.DELETE("/:id", image_handler.Delete)
+			image.PUT("/:id", image_handler.Update)
 		}
 
-		images := protected.Group("/images")
+		layer := protected.Group("/layer")
 		{
-			images.GET("")
-			images.POST("")
-			images.PUT("")
-			images.DELETE("")
+			layer.POST("", layer_handler.Create)
+			layer.GET("", layer_handler.Get)
+			layer.GET("/:id", layer_handler.GetByID)
+			layer.DELETE("/:id", layer_handler.Delete)
+			layer.PUT("/:id", layer_handler.Update)
 		}
 	}
 
