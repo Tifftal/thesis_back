@@ -141,6 +141,13 @@ definitions:
     - password
     - username
     type: object
+  internal_transport_http_user.RefreshUserDTO:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
   internal_transport_http_user.UserResponse:
     properties:
       createdAt:
@@ -221,6 +228,35 @@ paths:
           schema:
             $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
       summary: Аутентификация пользователя
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_user.RefreshUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_user.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_transport_http_user.ErrorResponse'
+      summary: Обновить токены авторизации
       tags:
       - Auth
   /auth/register:

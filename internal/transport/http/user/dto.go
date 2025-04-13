@@ -18,6 +18,10 @@ type LoginUserDTO struct {
 	Password string `json:"password" binding:"required,min=8"`
 }
 
+type RefreshUserDTO struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+}
+
 type UserResponse struct {
 	ID         uint      `json:"id"`
 	Username   string    `json:"username"`

@@ -31,7 +31,7 @@ func IsAuthenticated(authService *service.AuthService, logger *zap.Logger) gin.H
 
 		tokenString := headerParts[1]
 
-		userID, err := authService.ValidateToken(tokenString)
+		userID, _, err := authService.ValidateToken(tokenString)
 		if err != nil {
 			logger.Warn("Authorization Token Validation Error", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, domain.ErrUnauthorized.Error())

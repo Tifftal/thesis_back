@@ -21,6 +21,7 @@ type IUserUseCase interface {
 	Authenticate(ctx context.Context, username, password string) (*domain.User, error)
 	GetMe(ctx context.Context, userID uint) (*domain.User, error)
 	GenerateTokens(user *domain.User) (*domain.TokenPair, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (*domain.TokenPair, error)
 }
 
 func NewUserUseCase(repo user.IUserRepository, auth *service.AuthService, logger *zap.Logger) IUserUseCase {
@@ -84,4 +85,18 @@ func (uc *userUseCase) GetMe(ctx context.Context, userID uint) (*domain.User, er
 	}
 
 	return user, nil
+}
+
+func (uc *userUseCase) RefreshTokens(ctx context.Context, refreshToken string) (*domain.TokenPair, error) {
+	userID, err := uc.auth.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return nil, domain.ErrInvalidRefreshToken
+	}
+
+	pair, err := uc.auth.GenerateTokens(&domain.User{ID: userID})
+	if err != nil {
+		return nil, err
+	}
+
+	return pair, nil
 }

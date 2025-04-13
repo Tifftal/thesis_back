@@ -24,8 +24,9 @@ func NewAuthService(cfg *JWTConfig) *AuthService {
 func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, error) {
 	// Access token
 	accessClaims := jwt.MapClaims{
-		"userID": user.ID,
-		"exp":    time.Now().Add(a.config.AccessExpiry).Unix(),
+		"userID":    user.ID,
+		"tokenType": "access",
+		"exp":       time.Now().Add(a.config.AccessExpiry).Unix(),
 	}
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -36,8 +37,9 @@ func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, erro
 
 	// Refresh token
 	refreshClaims := jwt.MapClaims{
-		"userID": user.ID,
-		"exp":    time.Now().Add(a.config.RefreshExpiry).Unix(),
+		"userID":    user.ID,
+		"tokenType": "refresh",
+		"exp":       time.Now().Add(a.config.RefreshExpiry).Unix(),
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
@@ -53,24 +55,38 @@ func (a *AuthService) GenerateTokens(user *domain.User) (*domain.TokenPair, erro
 	}, nil
 }
 
-func (a *AuthService) ValidateToken(tokenString string) (uint, error) {
+func (a *AuthService) ValidateToken(tokenString string) (uint, string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.config.SecretKey), nil
 	})
 
 	if err != nil || !token.Valid {
-		return 0, domain.ErrUnauthorized
+		return 0, "", domain.ErrUnauthorized
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return 0, domain.ErrUnauthorized
+		return 0, "", domain.ErrUnauthorized
 	}
 
-	userIDFloat, ok := claims["userID"].(float64)
+	userID, ok := claims["userID"].(float64)
 	if !ok {
-		return 0, domain.ErrUnauthorized
+		return 0, "", domain.ErrUnauthorized
 	}
 
-	return uint(userIDFloat), nil
+	tokenType, _ := claims["tokenType"].(string)
+	return uint(userID), tokenType, nil
+}
+
+func (a *AuthService) ValidateRefreshToken(tokenString string) (uint, error) {
+	userID, tokenType, err := a.ValidateToken(tokenString)
+	if err != nil {
+		return 0, err
+	}
+
+	if tokenType != "refresh" {
+		return 0, domain.ErrInvalidTokenType
+	}
+
+	return userID, nil
 }

@@ -92,7 +92,33 @@ func (h *UserHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, ToAuthResponse(tokens, user))
 }
 
-func (h *UserHandler) Refresh(c *gin.Context) {}
+// Refresh godoc
+// @Summary Обновить токены авторизации
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body RefreshUserDTO true "Refresh Token"
+// @Success 200 {object} AuthResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Router /auth/refresh [post]
+func (h *UserHandler) Refresh(c *gin.Context) {
+	var req RefreshUserDTO
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: domain.ErrInvalidRequestBody.Error()})
+		return
+	}
+
+	pair, err := h.uc.RefreshTokens(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		h.logger.Warn("Refresh error", zap.Error(err))
+		c.JSON(errorStatusCode(err), ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, pair)
+}
 
 // Me godoc
 // @Summary Получение информации о текущем пользователе
@@ -122,6 +148,8 @@ func errorStatusCode(err error) int {
 	case errors.Is(err, domain.ErrUserNotFound):
 		return http.StatusNotFound
 	case errors.Is(err, domain.ErrInvalidCredentials):
+		return http.StatusUnauthorized
+	case errors.Is(err, domain.ErrInvalidRefreshToken):
 		return http.StatusUnauthorized
 	case errors.Is(err, domain.ErrUserExists):
 		return http.StatusConflict
