@@ -4,7 +4,7 @@
 
 1. В `/config` создать файл конфигурации `dev.yaml`
 2. Скопировать содержимое `/config/example.yaml` в файл конфигурации `dev.yaml`
-3. Запустить `docker-compose` командой `docker-compose up --build`
+3. Запустить `docker-compose` командой `docker-compose up --build -d`
     1. На порту 5432 развернется PostgreSQL
     2. На порту 9001 и 9000 развернется S3 MinIO
        1. После того, как MinIO развернется, перейти по адресу http://localhost:9001

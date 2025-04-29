@@ -134,7 +134,9 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Router /project [get]
 func (h *ProjectHandler) Get(c *gin.Context) {
-	projects, err := h.pu.Get(c.Request.Context())
+	userID := c.GetUint("userID")
+
+	projects, err := h.pu.Get(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Get projects error", zap.Error(err))
 		c.JSON(errorStatusCode(err), ErrorResponse{Message: err.Error()})

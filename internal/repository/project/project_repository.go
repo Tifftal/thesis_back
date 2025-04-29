@@ -12,7 +12,7 @@ type projectRepository struct {
 
 type IProjectRepository interface {
 	Create(ctx context.Context, project *domain.Project) error
-	Get(ctx context.Context) ([]*domain.Project, error)
+	Get(ctx context.Context, id uint) ([]*domain.Project, error)
 	GetByID(ctx context.Context, id uint) (*domain.Project, error)
 	Update(ctx context.Context, project *domain.Project) error
 	Delete(ctx context.Context, id uint) error
@@ -49,10 +49,10 @@ func (p *projectRepository) GetByID(ctx context.Context, id uint) (*domain.Proje
 	return &project, nil
 }
 
-func (p projectRepository) Get(ctx context.Context) ([]*domain.Project, error) {
+func (p projectRepository) Get(ctx context.Context, id uint) ([]*domain.Project, error) {
 	var projects []*domain.Project
 
-	err := p.db.Find(&projects).Error
+	err := p.db.Where("user_id = ?", id).Find(&projects).Error
 	if err != nil {
 		return nil, err
 	}

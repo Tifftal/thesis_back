@@ -16,7 +16,7 @@ type IProjectUseCase interface {
 	Create(ctx context.Context, project *domain.Project) (*domain.Project, error)
 	Update(ctx context.Context, project *domain.Project) (*domain.Project, error)
 	Delete(ctx context.Context, id uint) error
-	Get(ctx context.Context) ([]*domain.Project, error)
+	Get(ctx context.Context, id uint) ([]*domain.Project, error)
 	GetByID(ctx context.Context, id uint) (*domain.Project, error)
 }
 
@@ -51,8 +51,8 @@ func (p projectUseCase) Delete(ctx context.Context, id uint) error {
 	return nil
 }
 
-func (p projectUseCase) Get(ctx context.Context) ([]*domain.Project, error) {
-	projects, err := p.repo.Get(ctx)
+func (p projectUseCase) Get(ctx context.Context, id uint) ([]*domain.Project, error) {
+	projects, err := p.repo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
