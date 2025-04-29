@@ -1,3 +1,2 @@
-config/config.yaml
-docker-compose.yml
+config/dev.yaml
 .env
