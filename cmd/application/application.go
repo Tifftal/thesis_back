@@ -2,12 +2,6 @@ package application
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/minio/minio-go/v7"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"log"
 	_ "thesis_back/docs"
 	"thesis_back/internal/config"
@@ -17,6 +11,13 @@ import (
 	"thesis_back/internal/transport/http/middleware"
 	project_handler "thesis_back/internal/transport/http/project"
 	user_handler "thesis_back/internal/transport/http/user"
+
+	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Application struct {
@@ -35,6 +36,23 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 	}
 }
 
+// CORS middleware
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 // Start @title Thesis Backend API
 // @version 1.0
 // @description API для дипломного проекта
@@ -47,51 +65,62 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, layer_handler *layer_handler.LayerHandler, image_handler *image_handler.ImageHandler, auth_service *service.AuthService) {
 	router := gin.Default()
 
-	v1 := router.Group("/api/v1")
-	v1.Use(gin.Recovery())
+	// Добавляем CORS middleware
+	router.Use(CORSMiddleware())
+	router.Use(gin.Recovery())
 
+	// Swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	auth := v1.Group("/auth")
+	v1 := router.Group("/api/v1")
 	{
-		auth.POST("/register", user_handler.Register)
-		auth.POST("/login", user_handler.Login)
-		auth.POST("/refresh", user_handler.Refresh)
+		// Public routes
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/register", user_handler.Register)
+			auth.POST("/login", user_handler.Login)
+			auth.POST("/refresh", user_handler.Refresh)
+		}
+
+		// Protected routes
+		protected := v1.Group("")
+		protected.Use(middleware.IsAuthenticated(auth_service, a.logger.Named("Auth Middleware")))
+		{
+			user := protected.Group("/user")
+			{
+				user.GET("/me", user_handler.Me)
+			}
+
+			project := protected.Group("/project")
+			{
+				project.POST("", project_handler.Create)
+				project.GET("", project_handler.Get)
+				project.GET("/:id", project_handler.GetByID)
+				project.DELETE("/:id", project_handler.Delete)
+				project.PUT("/:id", project_handler.Update)
+			}
+
+			image := protected.Group("/image")
+			{
+				image.POST("", image_handler.Create)
+				image.DELETE("/:id", image_handler.Delete)
+				image.PUT("/:id", image_handler.Update)
+			}
+
+			layer := protected.Group("/layer")
+			{
+				layer.POST("", layer_handler.Create)
+				layer.DELETE("/:id", layer_handler.Delete)
+				layer.PUT("/:id", layer_handler.Update)
+			}
+		}
 	}
 
-	protected := v1.Group("")
-	protected.Use(middleware.IsAuthenticated(auth_service, a.logger.Named("Auth Middleware")))
-	{
-		user := protected.Group("/user")
-		{
-			user.GET("/me", user_handler.Me)
-		}
-
-		project := protected.Group("/project")
-		{
-			project.POST("", project_handler.Create)
-			project.GET("", project_handler.Get)
-			project.GET("/:id", project_handler.GetByID)
-			project.DELETE("/:id", project_handler.Delete)
-			project.PUT("/:id", project_handler.Update)
-		}
-
-		image := protected.Group("/image")
-		{
-			image.POST("", image_handler.Create)
-			image.DELETE("/:id", image_handler.Delete)
-			image.PUT("/:id", image_handler.Update)
-		}
-
-		layer := protected.Group("/layer")
-		{
-			layer.POST("", layer_handler.Create)
-			layer.DELETE("/:id", layer_handler.Delete)
-			layer.PUT("/:id", layer_handler.Update)
-		}
-	}
-
-	if err := router.Run(fmt.Sprintf("%s:%d", a.config.Server.Host, a.config.Server.Port)); err != nil {
+	// Start server
+	serverAddr := fmt.Sprintf("%s:%d", a.config.Server.Host, a.config.Server.Port)
+	a.logger.Info("Starting server", zap.String("address", serverAddr))
+	if err := router.Run(serverAddr); err != nil {
+		a.logger.Fatal("Failed to start server", zap.Error(err))
 		log.Fatal(err)
 	}
 }
