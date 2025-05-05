@@ -19,7 +19,7 @@ type imageRepository struct {
 type IImageRepository interface {
 	UploadImage(ctx context.Context, fileName string, file multipart.File, size int64) (string, error)
 	CreateImage(ctx context.Context, image *domain.Image) (*domain.Image, error)
-	Update(ctx context.Context, name string, id uint) (*domain.Image, error)
+	Update(ctx context.Context, name string, units string, width int64, id uint) (*domain.Image, error)
 	Delete(ctx context.Context, id uint) error
 }
 
@@ -55,11 +55,27 @@ func (r *imageRepository) CreateImage(ctx context.Context, image *domain.Image) 
 	return image, nil
 }
 
-func (r *imageRepository) Update(ctx context.Context, name string, id uint) (*domain.Image, error) {
+func (r *imageRepository) Update(ctx context.Context, name, units string, width int64, id uint) (*domain.Image, error) {
+	updates := make(map[string]interface{})
+
+	if name != "" {
+		updates["name"] = name
+	}
+	if units != "" {
+		updates["units"] = units
+	}
+	if width != 0 {
+		updates["width"] = width
+	}
+
+	if len(updates) == 0 {
+		return nil, errors.New("no fields to update")
+	}
+
 	var image domain.Image
 	result := r.db.Model(&domain.Image{}).
 		Where("id = ?", id).
-		Update("name", name).
+		Updates(updates).
 		First(&image)
 
 	if result.Error != nil {

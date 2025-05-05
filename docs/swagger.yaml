@@ -19,15 +19,21 @@ definitions:
         type: string
       projectID:
         type: integer
+      units:
+        type: string
       url:
         type: string
+      width:
+        type: integer
     type: object
   internal_transport_http_image.UpdateImageDTO:
     properties:
       name:
         type: string
-    required:
-    - name
+      units:
+        type: string
+      width:
+        type: integer
     type: object
   internal_transport_http_layer.CreateLayerDTO:
     properties:
@@ -179,8 +185,12 @@ definitions:
         type: string
       projectID:
         type: integer
+      units:
+        type: string
       url:
         type: string
+      width:
+        type: integer
     type: object
   thesis_back_internal_transport_http_layer.LayerResponse:
     properties:
@@ -305,6 +315,16 @@ paths:
         name: image
         required: true
         type: file
+      - description: Ширина изображения
+        in: formData
+        name: width
+        required: true
+        type: integer
+      - description: Единицы измерения
+        in: formData
+        name: units
+        required: true
+        type: string
       produces:
       - application/json
       responses:

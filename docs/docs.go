@@ -184,6 +184,20 @@ const docTemplate = `{
                         "name": "image",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ширина изображения",
+                        "name": "width",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Единицы измерения",
+                        "name": "units",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -674,19 +688,28 @@ const docTemplate = `{
                 "projectID": {
                     "type": "integer"
                 },
+                "units": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
+                },
+                "width": {
+                    "type": "integer"
                 }
             }
         },
         "internal_transport_http_image.UpdateImageDTO": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "units": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
                 }
             }
         },
@@ -918,8 +941,14 @@ const docTemplate = `{
                 "projectID": {
                     "type": "integer"
                 },
+                "units": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
+                },
+                "width": {
+                    "type": "integer"
                 }
             }
         },

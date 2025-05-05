@@ -9,4 +9,6 @@ type Image struct {
 	ProjectID uint    `json:"projectID" gorm:"not null"`
 	Layers    []Layer `json:"layer" gorm:"foreignKey:ImageID"`
 	URL       string  `json:"url" gorm:"not null"`
+	Width     int64   `json:"width" gorm:"not null"`
+	Units     string  `json:"units" gorm:"not null"`
 }

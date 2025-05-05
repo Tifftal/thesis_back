@@ -10,10 +10,14 @@ type AddImageDTO struct {
 	ProjectID uint                  `form:"projectID" binding:"required"`
 	Name      string                `form:"name" binding:"required"`
 	ImageFile *multipart.FileHeader `form:"image" binding:"required"`
+	Width     int64                 `form:"width" binding:"required"`
+	Units     string                `form:"units" binding:"required"`
 }
 
 type UpdateImageDTO struct {
-	Name string `json:"name" binding:"required"`
+	Name  string `json:"name"`
+	Width int64  `json:"width"`
+	Units string `json:"units"`
 }
 
 type ImageResponse struct {
@@ -23,6 +27,8 @@ type ImageResponse struct {
 	ProjectID uint                      `json:"projectID"`
 	Layers    []layer_dto.LayerResponse `json:"layers"`
 	URL       string                    `json:"url"`
+	Width     int64                     `json:"width"`
+	Units     string                    `json:"units"`
 }
 
 func ToImageResponse(image *domain.Image) ImageResponse {
@@ -38,6 +44,8 @@ func ToImageResponse(image *domain.Image) ImageResponse {
 		ProjectID: image.ProjectID,
 		URL:       image.URL,
 		Layers:    layers,
+		Width:     image.Width,
+		Units:     image.Units,
 	}
 }
 

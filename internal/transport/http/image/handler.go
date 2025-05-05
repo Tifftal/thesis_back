@@ -31,6 +31,8 @@ func NewImageHandler(iu image.IImageUseCase, logger *zap.Logger) *ImageHandler {
 // @Param projectID formData integer true "ID проекта"
 // @Param name formData string true "Название изображения"
 // @Param image formData file true "Файл изображения"
+// @Param width formData int true "Ширина изображения"
+// @Param units formData string true "Единицы измерения"
 // @Security BearerAuth
 // @Success 200 {object} ImageResponse
 // @Failure 400 {object} ErrorResponse
@@ -43,7 +45,7 @@ func (h *ImageHandler) Create(c *gin.Context) {
 		return
 	}
 
-	image, err := h.iu.UploadImage(c.Request.Context(), req.Name, req.ImageFile, req.ProjectID)
+	image, err := h.iu.UploadImage(c.Request.Context(), req.Name, req.Units, req.Width, req.ImageFile, req.ProjectID)
 	if err != nil {
 		h.logger.Warn("Upload error", zap.Error(err))
 		c.JSON(errorStatusCode(err), ErrorResponse{Message: err.Error()})
@@ -80,7 +82,7 @@ func (h *ImageHandler) Update(c *gin.Context) {
 		return
 	}
 
-	image, err := h.iu.Update(c.Request.Context(), req.Name, uint(id))
+	image, err := h.iu.Update(c.Request.Context(), req.Name, req.Units, req.Width, uint(id))
 	if err != nil {
 		h.logger.Warn("Update error", zap.Error(err))
 		c.JSON(errorStatusCode(err), ErrorResponse{Message: err.Error()})

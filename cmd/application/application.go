@@ -36,23 +36,6 @@ func NewApplication(config *config.Config, logger *zap.Logger, db *gorm.DB, mini
 	}
 }
 
-// CORS middleware
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
-}
-
 // Start @title Thesis Backend API
 // @version 1.0
 // @description API для дипломного проекта
@@ -65,8 +48,7 @@ func CORSMiddleware() gin.HandlerFunc {
 func (a *Application) Start(user_handler *user_handler.UserHandler, project_handler *project_handler.ProjectHandler, layer_handler *layer_handler.LayerHandler, image_handler *image_handler.ImageHandler, auth_service *service.AuthService) {
 	router := gin.Default()
 
-	// Добавляем CORS middleware
-	router.Use(CORSMiddleware())
+	router.Use(middleware.CORSMiddleware())
 	router.Use(gin.Recovery())
 
 	// Swagger
