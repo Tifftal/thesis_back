@@ -2,11 +2,11 @@ package detector
 
 import (
 	"context"
-	"fmt"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"thesis_back/internal/transport/grpc/detector/proto"
 	"time"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 type detectorClient struct {
