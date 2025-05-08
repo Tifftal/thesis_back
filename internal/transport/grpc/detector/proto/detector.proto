@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package detector;
+
+option go_package = "thesis_back/internal/transport/grpc/proto;proto";
+
+service ObjectDetector {
+  rpc Detect (DetectRequest) returns (DetectResponse);
+}
+
+message DetectRequest {
+  string image_id = 1;
+  bytes image_data = 2;
+}
+
+message Point {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Contour {
+  repeated Point points = 1;
+}
+
+message DetectResponse {
+  repeated Contour contours = 1;
+}

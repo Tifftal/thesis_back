@@ -7,17 +7,20 @@ import (
 	"net/http"
 	"strconv"
 	"thesis_back/internal/domain"
+	"thesis_back/internal/transport/grpc/detector"
 	"thesis_back/internal/usecase/image"
 )
 
 type ImageHandler struct {
 	iu     image.IImageUseCase
+	dc     detector.IDetectorClient
 	logger *zap.Logger
 }
 
-func NewImageHandler(iu image.IImageUseCase, logger *zap.Logger) *ImageHandler {
+func NewImageHandler(iu image.IImageUseCase, dc detector.IDetectorClient, logger *zap.Logger) *ImageHandler {
 	return &ImageHandler{
 		iu:     iu,
+		dc:     dc,
 		logger: logger.Named("ImageHandler"),
 	}
 }
@@ -119,6 +122,42 @@ func (h *ImageHandler) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, nil)
+}
+
+// Detect godoc
+// @Summary Распознать объекты на изображении
+// @Tags Images
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "ID изображения"
+// @Success 200 {object} ImageContourResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /image/detect/{id} [get]
+func (h *ImageHandler) Detect(c *gin.Context) {
+	strId := c.Param("id")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		h.logger.Warn("Validation error", zap.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{"error": domain.ErrInvalidRequestBody.Error()})
+		return
+	}
+
+	imageBytes, err := h.iu.LoadImage(c.Request.Context(), uint(id))
+	if err != nil {
+		h.logger.Warn("LoadImage error", zap.Error(err))
+		c.JSON(errorStatusCode(err), ErrorResponse{Message: domain.ErrImageNotLoaded.Error()})
+		return
+	}
+
+	boxes, err := h.dc.Detect(strId, imageBytes)
+	if err != nil {
+		h.logger.Warn("Detect error", zap.Error(err))
+		c.JSON(errorStatusCode(err), ErrorResponse{Message: domain.ErrObjectsNotDetected.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, boxes)
 }
 
 func errorStatusCode(err error) int {

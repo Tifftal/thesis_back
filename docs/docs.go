@@ -216,6 +216,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/image/detect/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Распознать объекты на изображении",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID изображения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ImageContourResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_image.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/image/{id}": {
             "put": {
                 "security": [
@@ -667,6 +712,17 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_transport_http_image.ImageContourResponse": {
+            "type": "object",
+            "properties": {
+                "contours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/thesis_back_internal_domain.Contour"
+                    }
+                }
+            }
+        },
         "internal_transport_http_image.ImageResponse": {
             "type": "object",
             "properties": {
@@ -917,6 +973,28 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "thesis_back_internal_domain.Contour": {
+            "type": "object",
+            "properties": {
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/thesis_back_internal_domain.Point"
+                    }
+                }
+            }
+        },
+        "thesis_back_internal_domain.Point": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "integer"
+                },
+                "y": {
+                    "type": "integer"
                 }
             }
         },

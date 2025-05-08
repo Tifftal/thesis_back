@@ -7,6 +7,9 @@ server:
   write_timeout: 15s
   shutdown_timeout: 5s
 
+grpc:
+  detector_url: "127.0.0.1:8081"
+
 postgres:
   host: 127.0.0.1
   port: 5432

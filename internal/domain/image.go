@@ -12,3 +12,12 @@ type Image struct {
 	Width     int64   `json:"width" gorm:"not null"`
 	Units     string  `json:"units" gorm:"not null"`
 }
+
+type Point struct {
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
+}
+
+type Contour struct {
+	Points []Point `json:"points"`
+}

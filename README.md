@@ -17,6 +17,7 @@
 1. Swagger-документация доступна по адресу http://localhost:8080/swagger/index.html#/
 2. Админка MinIO доступна по адресу http://localhost:9001
 3. Креды для подключения к базе данных указаны в конфигурационных файлах (по умолчанию имя пользователя: `thesis`, пароль: `dbpassword123`)
+4. Чтобы сгенерировать сваггер, находясь в корне, необходимо написать следующую команду `swag init -g cmd/application/application.go --parseDependency`
 
 ### ER-диаграмма БД
 ![img.png](img.png)

@@ -12,6 +12,8 @@ var (
 	ErrInvalidRequestBody  = errors.New("Данные неверны")
 	ErrProjectNotFound     = errors.New("Проект не найден")
 	ErrImageNotUploaded    = errors.New("Не удалось загрузить изображение в S3")
+	ErrImageNotLoaded      = errors.New("Не удалось скачать изображение из S3")
+	ErrObjectsNotDetected  = errors.New("Не удалось определить объекты на изображении")
 	ErrImageNotFound       = errors.New("Изображение не найдено")
 	ErrImageNotOpens       = errors.New("Ошибка при открытии изображения")
 	ErrLayerNotFound       = errors.New("Слоай не найден")

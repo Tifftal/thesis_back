@@ -5,6 +5,13 @@ definitions:
       message:
         type: string
     type: object
+  internal_transport_http_image.ImageContourResponse:
+    properties:
+      contours:
+        items:
+          $ref: '#/definitions/thesis_back_internal_domain.Contour'
+        type: array
+    type: object
   internal_transport_http_image.ImageResponse:
     properties:
       fileName:
@@ -170,6 +177,20 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  thesis_back_internal_domain.Contour:
+    properties:
+      points:
+        items:
+          $ref: '#/definitions/thesis_back_internal_domain.Point'
+        type: array
+    type: object
+  thesis_back_internal_domain.Point:
+    properties:
+      x:
+        type: integer
+      "y":
+        type: integer
     type: object
   thesis_back_internal_transport_http_image.ImageResponse:
     properties:
@@ -394,6 +415,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Обновить название изображения
+      tags:
+      - Images
+  /image/detect/{id}:
+    get:
+      parameters:
+      - description: ID изображения
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ImageContourResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_transport_http_image.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Распознать объекты на изображении
       tags:
       - Images
   /layer:

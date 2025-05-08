@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"log"
 	"thesis_back/cmd/application"
 	"thesis_back/internal/config"
@@ -9,6 +10,7 @@ import (
 	"thesis_back/internal/infrastructure/s3/minio"
 	"thesis_back/internal/pkg/logger"
 	"thesis_back/internal/service"
+	"thesis_back/internal/transport/grpc/detector"
 
 	user_repo "thesis_back/internal/repository/user"
 	user_handler "thesis_back/internal/transport/http/user"
@@ -71,6 +73,11 @@ func main() {
 		RefreshExpiry: cfg.Auth.RefreshTokenExpire,
 	})
 
+	dc, err := detector.NewDetectorClient(cfg.GRPC.DetectorAddr, custom_logger)
+	if err != nil {
+		custom_logger.Error("grpc detector client failed", zap.Error(err))
+	}
+
 	ur := user_repo.NewUserRepository(db)
 	uc := user_usecase.NewUserUseCase(ur, auth_service, custom_logger)
 	uh := user_handler.NewUserHandler(uc, custom_logger)
@@ -81,7 +88,7 @@ func main() {
 
 	ir := image_repo.NewImageRepository(db, s3, fmt.Sprintf("%s/%s", cfg.S3.Endpoint, cfg.S3.BucketName))
 	ic := image_usecase.NewImageUseCase(ir, custom_logger)
-	ih := image_handler.NewImageHandler(ic, custom_logger)
+	ih := image_handler.NewImageHandler(ic, dc, custom_logger)
 
 	lr := layer_repo.NewLayerRepository(db)
 	lu := layer_usecase.NewLayerUseCase(lr, custom_logger)

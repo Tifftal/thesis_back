@@ -13,10 +13,15 @@ import (
 type Config struct {
 	Environment string        `validate:"required,oneof=development staging production"`
 	Server      ServerConfig  `validate:"required"`
+	GRPC        GRPCConfig    `validate:"required"`
 	DB          DBConfig      `mapstructure:"postgres"`
 	S3          S3Config      `mapstructure:"minio"`
 	Auth        AuthConfig    `mapstructure:"auth"`
 	Logging     LoggingConfig `mapstructure:"logging"`
+}
+
+type GRPCConfig struct {
+	DetectorAddr string `mapstructure:"detector_url"`
 }
 
 type ServerConfig struct {

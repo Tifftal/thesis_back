@@ -31,6 +31,10 @@ type ImageResponse struct {
 	Units     string                    `json:"units"`
 }
 
+type ImageContourResponse struct {
+	Contours []domain.Contour `json:"contours"`
+}
+
 func ToImageResponse(image *domain.Image) ImageResponse {
 	layers := make([]layer_dto.LayerResponse, len(image.Layers))
 	for i, layer := range image.Layers {

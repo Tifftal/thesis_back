@@ -17,6 +17,7 @@ type imageUseCase struct {
 
 type IImageUseCase interface {
 	UploadImage(ctx context.Context, name string, units string, width int64, imageFile *multipart.FileHeader, projectID uint) (*domain.Image, error)
+	LoadImage(ctx context.Context, id uint) ([]byte, error)
 	Update(ctx context.Context, name string, units string, width int64, id uint) (*domain.Image, error)
 	Delete(ctx context.Context, id uint) error
 }
@@ -59,9 +60,20 @@ func (u *imageUseCase) UploadImage(ctx context.Context, name, units string, widt
 	return image, nil
 }
 
+func (u *imageUseCase) LoadImage(ctx context.Context, id uint) ([]byte, error) {
+	imageBytes, err := u.repo.LoadImage(ctx, id)
+	if err != nil {
+		u.logger.Warn("LoadImage error", zap.Error(err))
+		return nil, domain.ErrImageNotLoaded
+	}
+
+	return imageBytes, nil
+}
+
 func (u *imageUseCase) Update(ctx context.Context, name, units string, width int64, id uint) (*domain.Image, error) {
 	image, err := u.repo.Update(ctx, name, units, width, id)
 	if err != nil {
+		u.logger.Warn("Update error", zap.Error(err))
 		return nil, err
 	}
 
