@@ -2,6 +2,8 @@ package layer
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"thesis_back/internal/domain"
 )
@@ -32,9 +34,31 @@ func (r *layerRepository) Create(ctx context.Context, layer *domain.Layer) error
 }
 
 func (r *layerRepository) Update(ctx context.Context, layer *domain.Layer) error {
-	err := r.db.Model(&domain.Layer{}).Where("id = ?", layer.ID).Update("name", layer.Name).Update("measurements", layer.Measurements).Error
-	if err != nil {
-		return err
+	updates := make(map[string]interface{})
+
+	fmt.Println(layer.Color)
+
+	if layer.Name != "" {
+		updates["name"] = layer.Name
+	}
+	if layer.Measurements != nil {
+		updates["measurements"] = layer.Measurements
+	}
+	if layer.Color != "" {
+		updates["color"] = layer.Color
+	}
+
+	result := r.db.Model(&domain.Layer{}).
+		Where("id = ?", layer.ID).
+		Updates(updates).
+		First(&layer)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return domain.ErrLayerNotFound
+		}
+
+		return result.Error
 	}
 
 	return nil

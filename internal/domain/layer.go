@@ -10,5 +10,6 @@ type Layer struct {
 	ID           uint           `gorm:"primaryKey;autoIncrement"`
 	ImageID      uint           `json:"imageID" gorm:"not null"`
 	Name         string         `json:"name" gorm:"not null"`
+	Color        string         `json:"color"`
 	Measurements datatypes.JSON `json:"measurements" gorm:"type:jsonb"`
 }

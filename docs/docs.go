@@ -791,6 +791,9 @@ const docTemplate = `{
         "internal_transport_http_layer.LayerResponse": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -809,6 +812,9 @@ const docTemplate = `{
         "internal_transport_http_layer.UpdateLayerDTO": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "measurements": {
                     "type": "object",
                     "additionalProperties": true
@@ -1033,6 +1039,9 @@ const docTemplate = `{
         "thesis_back_internal_transport_http_layer.LayerResponse": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

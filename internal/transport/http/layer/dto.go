@@ -10,6 +10,7 @@ type LayerResponse struct {
 	ImageID      uint                   `json:"imageID"`
 	Name         string                 `json:"name"`
 	Measurements map[string]interface{} `json:"measurements"`
+	Color        string                 `json:"color"`
 }
 
 type CreateLayerDTO struct {
@@ -20,6 +21,7 @@ type CreateLayerDTO struct {
 type UpdateLayerDTO struct {
 	Name         string                 `json:"name"`
 	Measurements map[string]interface{} `json:"measurements"`
+	Color        string                 `json:"color"`
 }
 
 func ToLayerResponse(layer *domain.Layer) LayerResponse {
@@ -33,6 +35,7 @@ func ToLayerResponse(layer *domain.Layer) LayerResponse {
 		ImageID:      layer.ImageID,
 		Name:         layer.Name,
 		Measurements: measurements,
+		Color:        layer.Color,
 	}
 }
 

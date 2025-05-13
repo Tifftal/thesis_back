@@ -91,6 +91,7 @@ func (h *LayerHandler) Update(c *gin.Context) {
 		ID:           uint(id),
 		Name:         req.Name,
 		Measurements: measurementsJSON,
+		Color:        req.Color,
 	})
 	if err != nil {
 		h.logger.Warn("Layer update failed", zap.Error(err))
